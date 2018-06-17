@@ -7,6 +7,11 @@ import RoboPiLib as RPL
 # mount sensors facing forward/backward on back and front on each side (total 4)
 # turn until that digital sensor no longer senses
 
+# ideas: turn times? may have to continue past digital sensing in order to complete turn
+# maybe tell difference between 90 degree and other turns via front analog sensor?
+# that only works if on right side
+#
+
 
 motorL = 1
 motorR = 2
@@ -20,10 +25,10 @@ fldig = 2
 brdig = 3
 bldig = 4
 
-lgo = 2000
-rgo = 1000
-rslow = 1450
-lslow = 1550
+lgo = 1800
+rgo = 1200
+rslow = 1350
+lslow = 1650
 
 fardist = 370
 closedist = 320
@@ -39,21 +44,20 @@ straight = Fanalog - Banalog
 
 
 def reverse():
-  RPL.servoWrite(motorL,rgo)
-  RPL.servoWrite(motorR,lgo)
+    RPL.servoWrite(motorL,rgo)
+    RPL.servoWrite(motorR,lgo)
 
 def forward():
     RPL.servoWrite(motorL,lgo)
     RPL.servoWrite(motorR,rgo)
 
 def stop():
-  RPL.servoWrite(motorL, 0)
-  RPL.servoWrite(motorR, 0)
+    RPL.servoWrite(motorL, 0)
+    RPL.servoWrite(motorR, 0)
 
 
 
-
-while True:
+while True: # big loop
     Fanalog = RPL.analogRead(fana)
     Banalog = RPL.analogRead(bana)
     frsensor = RPL.digitalRead(frdig)
@@ -66,16 +70,25 @@ while True:
     while True: # forward
         RPL.analogRead(fana)
         RPL.analogRead(back)
+        Fanalog = RPL.analogRead(fana)
+        Banalog = RPL.analogRead(bana)
+        frsensor = RPL.digitalRead(frdig)
+        flsensor = RPL.digitalRead(fldig)
+        brsensor = RPL.digitalRead(brdig)
+        blsensor = RPL.digitalRead(bldig)
 
         # Turns:
 
         while frsensor == 0: # sharp left in wall, turn left
-            RPL.servoWrite(motorL,rgo)
-            RPL.servoWrite(motorR,rgo)
+            RPL.servoWrite(motorL,rslow)
+            RPL.servoWrite(motorR,rslow)
 
         while flsensor == 0: # sharp right in wall, turn right
-            RPL.servoWrite(motorL,lgo)
-            RPL.servoWrite(motorR,lgo)
+            RPL.servoWrite(motorL,lslow)
+            RPL.servoWrite(motorR,lslow)
+
+        if frsensor = 0 and flsensor = 0:
+            break
 
         # Staying straight:
 
