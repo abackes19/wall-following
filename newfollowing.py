@@ -7,7 +7,6 @@ import RoboPiLib as RPL
 # mount sensors facing forward/backward on back and front on each side (total 4)
 # turn until that digital sensor no longer senses
 
-# AT ME: THE ANALOG SENSORS ARE BOTH ON THE SAME SIDE OF THE ROBOT, ONE IS IN THE FRONT AND ONE THE BACK
 
 motorL = 1
 motorR = 2
@@ -53,26 +52,32 @@ def stop():
 
 
 
+
 while True:
-Fanalog = RPL.analogRead(fana)
-Banalog = RPL.analogRead(bana)
-frsensor = RPL.digitalRead(frdig)
-flsensor = RPL.digitalRead(fldig)
-brsensor = RPL.digitalRead(brdig)
-blsensor = RPL.digitalRead(bldig)
+    Fanalog = RPL.analogRead(fana)
+    Banalog = RPL.analogRead(bana)
+    frsensor = RPL.digitalRead(frdig)
+    flsensor = RPL.digitalRead(fldig)
+    brsensor = RPL.digitalRead(brdig)
+    blsensor = RPL.digitalRead(bldig)
+
+
 
     while True: # forward
         RPL.analogRead(fana)
         RPL.analogRead(back)
 
+        # Turns:
 
-        if frsensor == 0: # TURN LEFT
-            RPL.servoWrite(motorL,0)
+        while frsensor == 0: # sharp left in wall, turn left
+            RPL.servoWrite(motorL,rgo)
             RPL.servoWrite(motorR,rgo)
 
+        while flsensor == 0: # sharp right in wall, turn right
+            RPL.servoWrite(motorL,lgo)
+            RPL.servoWrite(motorR,lgo)
 
-######################
-# This part v is good
+        # Staying straight:
 
         # calibrating the distance off the wall:
         if Fanalog <= closedist and Banalog <= closedist:
