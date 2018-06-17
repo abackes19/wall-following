@@ -29,6 +29,14 @@ lslow = 1550
 fardist = 370
 closedist = 320
 
+Fanalog = RPL.analogRead(fana)
+Banalog = RPL.analogRead(bana)
+frsensor = RPL.digitalRead(frdig)
+flsensor = RPL.digitalRead(fldig)
+brsensor = RPL.digitalRead(brdig)
+blsensor = RPL.digitalRead(bldig)
+
+straight = Fanalog - Banalog
 
 
 def reverse():
@@ -46,18 +54,25 @@ def stop():
 
 
 while True:
+Fanalog = RPL.analogRead(fana)
+Banalog = RPL.analogRead(bana)
+frsensor = RPL.digitalRead(frdig)
+flsensor = RPL.digitalRead(fldig)
+brsensor = RPL.digitalRead(brdig)
+blsensor = RPL.digitalRead(bldig)
+
     while True: # forward
         RPL.analogRead(fana)
         RPL.analogRead(back)
-        Fanalog = RPL.analogRead(fana)
-        Banalog = RPL.analogRead(bana)
-        frontsensor = RPL.digitalRead(16)
-        straight = Fanalog - Banalog
 
-        #if there is something in front it will turn left
-        if frontsensor == 0:
-            RPL.servoWrite(motorL,lgo)
-            RPL.servoWrite(motorR,0)
+
+        if frsensor == 0: # TURN LEFT
+            RPL.servoWrite(motorL,0)
+            RPL.servoWrite(motorR,rgo)
+
+
+######################
+# This part v is good
 
         # calibrating the distance off the wall:
         if Fanalog <= closedist and Banalog <= closedist:
