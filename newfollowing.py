@@ -3,14 +3,8 @@ import RoboPiLib as RPL
 #change it to 3 and 8 for sensors
 
 # turning:
-# put digital on front sides, if it reads then know that the wall turns
-# mount sensors facing forward/backward on back and front on each side (total 4)
-# turn until that digital sensor no longer senses
-
-# ideas: turn times? may have to continue past digital sensing in order to complete turn
-# maybe tell difference between 90 degree and other turns via front analog sensor?
-# that only works if on right side
-#
+# PSYCH THEY'RE ALL RIGHT TURNS
+# 
 
 
 motorL = 1
