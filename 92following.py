@@ -76,7 +76,7 @@ while True: # big loop
                         while time.time() < future:
                             RPL.servoWrite(motorL,lslow)#TURNTURNTURNTURNTURNTURNTURNTURN
                             RPL.servoWrite(motorR,lslow)
-                            now = time.time()
+                        forward()
                     else: # ... and left
                         break # reverse! reverse!
 
@@ -103,12 +103,15 @@ while True: # big loop
                         RPL.servoWrite(motorL,lgo)
                         RPL.servoWrite(motorR,rslow)
             else: # no front or front right, but back right
-                forward() # need to continue so doesn't turn too sharp,
+                forward() # need to continue so doesn't turn too sharp, will turn when get front
 
         else: # back right gets nothing, turn right
-            while fsensor = 0:#TURNTURNTURNTURNTURNTURNTURNTURN
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,lslow)
+            if fsensor = 0:#TURNTURNTURNTURNTURNTURNTURNTURN
+                now = time.time()
+                future = now + 1
+                while time.time() < future:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,lslow)
             forward()
 
     #####################################################
@@ -118,22 +121,25 @@ while True: # big loop
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
-        RPL.servoWrite(motorR, lgo) # reset motors to straight through each loop
-        RPL.servoWrite(motorL, rgo)
+        reverse() # reset motors to straight through each loop
 
         # Turns:
 
         if Fanalog >= 130:
             if Banalog >= 130:
-                while bsensor = 0:
-                    if Lanalog <= 130: #TURNTURNTURNTURNTURNTURNTURNTURN
-                        RPL.servoWrite(motorL,lslow)
-                        RPL.servoWrite(motorR,lslow)
+                if bsensor = 0:
+                    if Lanalog <= 130:
+                        now = time.time()
+                        future = now + 1
+                        while time.time() < future:
+                            RPL.servoWrite(motorL,lslow)
+                            RPL.servoWrite(motorR,lslow)
+                        forward()
                     else:
                         break
 
 
-                if Fanalog <= closedist and Banalog <= closedist:
+                elif Fanalog <= closedist and Banalog <= closedist:
                     RPL.servoWrite(motorL,lgo)
                     RPL.servoWrite(motorR,rslow)
 
@@ -156,6 +162,10 @@ while True: # big loop
             else:
                 forward()
         else:
-            while fsensor = 0: #TURNTURNTURNTURNTURNTURNTURNTURN
-                RPL.servoWrite(motorL,rslow)
-                RPL.servoWrite(motorR,rslow)
+            if fsensor = 0: #TURNTURNTURNTURNTURNTURNTURNTURN
+                now = time.time()
+                future = now + 1
+                while time.time() < future:
+                    RPL.servoWrite(motorL,rslow)
+                    RPL.servoWrite(motorR,rslow)
+            reverse()
