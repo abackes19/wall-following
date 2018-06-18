@@ -2,15 +2,15 @@ import setup
 import RoboPiLib as RPL
 #change it to 3 and 8 for sensors
 
-# right now forward shoooulllld work, might not- problems with the ifs
-# backward is not fixed yet
-# yeah
+# attempt to rearrange if statements
+# pre- these changes is 90following.py
 
 motorL = 1
 motorR = 2
 
 fana = 0
 bana = 3
+lana = 1
 
 # all digital sensor numbers are currently just made up
 
@@ -28,6 +28,7 @@ closedist = 320
 
 Fanalog = RPL.analogRead(fana)
 Banalog = RPL.analogRead(bana)
+Lanalog = RPL.analogRead(lana)
 fsensor = RPL.digitalRead(fdig)
 bsensor = RPL.digitalRead(bdig)
 
@@ -49,99 +50,95 @@ def stop():
 
 
 while True: # big loop
-    Fanalog = RPL.analogRead(fana)
-    Banalog = RPL.analogRead(bana)
-    fsensor = RPL.digitalRead(fdig)
-    bsensor = RPL.digitalRead(bdig)
-
 
     while True: # forward
-        RPL.analogRead(fana)
-        RPL.analogRead(back)
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
+        Lanalog = RPL.analogRead(lana)
+        fsensor = RPL.digitalRead(fdig)
+        bsensor = RPL.digitalRead(bdig)
+
+
+        if Banalog >= 130:
+            if Fanalog >= 130: # getting the back and front on right
+                while fsensor = 0: # getting front and front and back on right
+                    if Lanalog <= 130: # but not left, turn left
+                        RPL.servoWrite(motorL,lslow)
+                        RPL.servoWrite(motorR,lslow)
+                    else: # front, left, and right, reverse
+                        break
+
+                # centering if whole robot too close or far away
+                if Fanalog <= closedist and Banalog <= closedist:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,rgo)
+
+                elif Fanalog >= fardist and Banalog >= fardist:
+                    RPL.servoWrite(motorL,lgo)
+                    RPL.servoWrite(motorR,rslow)
+
+                else: # the robot is in a good place
+                #if the robot is parallel to the wall it will move forward
+                    if straight > -2 and straight < 2:
+                        forward()
+                    #if the robot is angled away the wall- turn towards
+                    elif straight < -2:
+                        RPL.servoWrite(motorL,lslow)
+                        RPL.servoWrite(motorR,rgo)
+                    #if the robot is angeled towards the wall- turn away
+                    else:
+                        RPL.servoWrite(motorL,lgo)
+                        RPL.servoWrite(motorR,rslow)
+            else: # no front or front right, but back right
+                forward() # need to continue so doesn't turn too sharp,
+
+        else: # back right gets nothing, turn right
+            while fsensor = 0:
+                RPL.servoWrite(motorL,lslow)
+                RPL.servoWrite(motorR,lslow)
+
+
+    while True: # backwards
+        Fanalog = RPL.analogRead(fana)
+        Banalog = RPL.analogRead(bana)
+        Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
 
         # Turns:
 
-        if fsensor = 0:
-            if Fanalog <= 130:
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,lslow)
-            elif Fanalog >= 130:
+        if Fanalog >= 130:
+
+            while bsensor = 0:
+                if Lanalog <= 130:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,lslow)
+                else:
+                    break
+
+
+            else:
+                if Fanalog <= closedist and Banalog <= closedist:
+                    RPL.servoWrite(motorL,lgo)
+                    RPL.servoWrite(motorR,rslow)
+
+                elif Fanalog >= fardist and Banalog >= fardist:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,rgo)
+
+                else:
+                #if the robot is parallel to the wall it will move forward
+                    if straight > -2 and straight < 2:
+                        reverse()
+                    #if the robot is angled away the wall- turn towards
+                    elif straight < -2:
+                        RPL.servoWrite(motorL,rslow)
+                        RPL.servoWrite(motorR,lgo)
+                    #if the robot is angeled towards the wall- turn away
+                    else:
+                        RPL.servoWrite(motorL,rgo)
+                        RPL.servoWrite(motorR,lslow)
+        else:
+            while fsensor = 0:
                 RPL.servoWrite(motorL,rslow)
                 RPL.servoWrite(motorR,rslow)
-
-        else:
-
-        # Staying straight:
-
-        # calibrating the distance off the wall:
-            if Fanalog <= closedist and Banalog <= closedist:
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,rgo)
-
-            elif Fanalog >= fardist and Banalog >= fardist:
-                RPL.servoWrite(motorL,lgo)
-                RPL.servoWrite(motorR,rslow)
-
-            #if the robot is parallel to the wall it will move forward
-            if straight > -2 and straight < 2:
-                forward()
-            #if the robot is angled away the wall- turn towards
-            elif straight < -2:
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,rgo)
-            #if the robot is angeled towards the wall- turn away
-            elif straight > 2:
-                RPL.servoWrite(motorL,lgo)
-                RPL.servoWrite(motorR,rslow)
-
-    while True: # backward
-        RPL.analogRead(fana)
-        RPL.analogRead(back)
-        Fanalog = RPL.analogRead(fana)
-        Banalog = RPL.analogRead(bana)
-        frsensor = RPL.digitalRead(frdig)
-        flsensor = RPL.digitalRead(fldig)
-        brsensor = RPL.digitalRead(brdig)
-        blsensor = RPL.digitalRead(bldig)
-
-        straight = Banalog - Fanalog
-
-
-        # Turns:
-
-        if flsensor = 1 and blsensor = 1:
-            RPL.servoWrite(motorL,lslow)
-            RPL.servoWrite(motorR,lslow)
-        if frsensor = 1 and brsensor = 1:
-            RPL.servoWrite(motorL,rslow)
-            RPL.servoWrite(motorR,rslow)
-
-        if bsensor = 1:
-            break
-
-        # Staying straight:
-
-        # calibrating the distance off the wall:
-        if Fanalog <= closedist and Banalog <= closedist:
-            RPL.servoWrite(motorL,lgo)
-            RPL.servoWrite(motorR,rslow)
-
-        if Fanalog >= fardist and Banalog >= fardist:
-            RPL.servoWrite(motorL,lslow)
-            RPL.servoWrite(motorR,rgo)
-
-        #if the robot is parallel to the wall it will move forward
-        if straight > -2 and straight < 2:
-            forward()
-        #if the robot is angled away the wall- turn towards
-        if straight < -2:
-            RPL.servoWrite(motorL,rslow)
-            RPL.servoWrite(motorR,lgo)
-        #if the robot is angeled towards the wall- turn away
-        if straight > 2:
-            RPL.servoWrite(motorL,rgo)
-            RPL.servoWrite(motorR,lslow)
