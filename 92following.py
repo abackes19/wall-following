@@ -10,6 +10,7 @@ motorR = 2
 
 fana = 0
 bana = 3
+lana = 1
 
 # all digital sensor numbers are currently just made up
 
@@ -27,6 +28,7 @@ closedist = 320
 
 Fanalog = RPL.analogRead(fana)
 Banalog = RPL.analogRead(bana)
+Lanalog = RPL.analogRead(lana)
 fsensor = RPL.digitalRead(fdig)
 bsensor = RPL.digitalRead(bdig)
 
@@ -48,28 +50,30 @@ def stop():
 
 
 while True: # big loop
-    Fanalog = RPL.analogRead(fana)
-    Banalog = RPL.analogRead(bana)
-    fsensor = RPL.digitalRead(fdig)
-    bsensor = RPL.digitalRead(bdig)
 
 
     while True: # forward
         RPL.analogRead(fana)
         RPL.analogRead(back)
+        RPL.analogRead(lana)
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
+        Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
 
         # Turns:
 
-        if Fanalog >= 130:
+        if Banalog >= 130:
 
         # calibrating the distance off the wall:
-            if fsensor = 0:
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,lslow)
+            while fsensor = 0:
+                if Lanalog <= 130:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,lslow)
+                else:
+                    break
+
 
             else:
                 if Fanalog <= closedist and Banalog <= closedist:
@@ -96,3 +100,52 @@ while True: # big loop
             while fsensor = 0:
                 RPL.servoWrite(motorL,lslow)
                 RPL.servoWrite(motorR,lslow)
+
+
+    while True: # backwards
+        RPL.analogRead(fana)
+        RPL.analogRead(back)
+        RPL.analogRead(lana)
+        Fanalog = RPL.analogRead(fana)
+        Banalog = RPL.analogRead(bana)
+        Lanalog = RPL.analogRead(lana)
+        fsensor = RPL.digitalRead(fdig)
+        bsensor = RPL.digitalRead(bdig)
+
+        # Turns:
+
+        if Fanalog >= 130:
+
+            while bsensor = 0:
+                if Lanalog <= 130:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,lslow)
+                else:
+                    break
+
+
+            else:
+                if Fanalog <= closedist and Banalog <= closedist:
+                    RPL.servoWrite(motorL,lgo)
+                    RPL.servoWrite(motorR,rslow)
+
+                elif Fanalog >= fardist and Banalog >= fardist:
+                    RPL.servoWrite(motorL,lslow)
+                    RPL.servoWrite(motorR,rgo)
+
+                else:
+                #if the robot is parallel to the wall it will move forward
+                    if straight > -2 and straight < 2:
+                        reverse()
+                    #if the robot is angled away the wall- turn towards
+                    elif straight < -2:
+                        RPL.servoWrite(motorL,rslow)
+                        RPL.servoWrite(motorR,lgo)
+                    #if the robot is angeled towards the wall- turn away
+                    else:
+                        RPL.servoWrite(motorL,rgo)
+                        RPL.servoWrite(motorR,lslow)
+        else:
+            while fsensor = 0:
+                RPL.servoWrite(motorL,rslow)
+                RPL.servoWrite(motorR,rslow)
