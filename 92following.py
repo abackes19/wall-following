@@ -1,9 +1,7 @@
 import setup
 import RoboPiLib as RPL
-#change it to 3 and 8 for sensors
-
-# attempt to rearrange if statements
-# pre- these changes is 90following.py
+# this will be the updated one
+# adding avoidance of problem of only br reading
 
 motorL = 1
 motorR = 2
@@ -53,29 +51,23 @@ while True: # big loop
 
 
     while True: # forward
-        RPL.analogRead(fana)
-        RPL.analogRead(back)
-        RPL.analogRead(lana)
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
 
-        # Turns:
 
         if Banalog >= 130:
+            if Fanalog >= 130: # getting the back and front on right
+                while fsensor = 0: # getting front and front and back on right
+                    if Lanalog <= 130: # but not left, turn left
+                        RPL.servoWrite(motorL,lslow)
+                        RPL.servoWrite(motorR,lslow)
+                    else: # front, left, and right, reverse
+                        break
 
-        # calibrating the distance off the wall:
-            while fsensor = 0:
-                if Lanalog <= 130:
-                    RPL.servoWrite(motorL,lslow)
-                    RPL.servoWrite(motorR,lslow)
-                else:
-                    break
-
-
-            else:
+                # centering if whole robot too close or far away
                 if Fanalog <= closedist and Banalog <= closedist:
                     RPL.servoWrite(motorL,lslow)
                     RPL.servoWrite(motorR,rgo)
@@ -84,7 +76,7 @@ while True: # big loop
                     RPL.servoWrite(motorL,lgo)
                     RPL.servoWrite(motorR,rslow)
 
-                else:
+                else: # the robot is in a good place
                 #if the robot is parallel to the wall it will move forward
                     if straight > -2 and straight < 2:
                         forward()
@@ -96,7 +88,10 @@ while True: # big loop
                     else:
                         RPL.servoWrite(motorL,lgo)
                         RPL.servoWrite(motorR,rslow)
-        else:
+            else: # no front or front right, but back right
+                forward() # need to continue so doesn't turn too sharp,
+
+        else: # back right gets nothing, turn right
             while fsensor = 0:
                 RPL.servoWrite(motorL,lslow)
                 RPL.servoWrite(motorR,lslow)
@@ -115,16 +110,15 @@ while True: # big loop
         # Turns:
 
         if Fanalog >= 130:
+            if Banalog >= 130:
+                while bsensor = 0:
+                    if Lanalog <= 130:
+                        RPL.servoWrite(motorL,lslow)
+                        RPL.servoWrite(motorR,lslow)
+                    else:
+                        break
 
-            while bsensor = 0:
-                if Lanalog <= 130:
-                    RPL.servoWrite(motorL,lslow)
-                    RPL.servoWrite(motorR,lslow)
-                else:
-                    break
 
-
-            else:
                 if Fanalog <= closedist and Banalog <= closedist:
                     RPL.servoWrite(motorL,lgo)
                     RPL.servoWrite(motorR,rslow)
@@ -145,6 +139,8 @@ while True: # big loop
                     else:
                         RPL.servoWrite(motorL,rgo)
                         RPL.servoWrite(motorR,lslow)
+            else:
+                forward()
         else:
             while fsensor = 0:
                 RPL.servoWrite(motorL,rslow)
