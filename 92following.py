@@ -67,17 +67,22 @@ while True: # big loop
         RPL.servoWrite(motorR, rgo) # reset motors to straight through each loop
         RPL.servoWrite(motorL, lgo)
 
-        if Banalog >= 130:
-            if Fanalog >= 130: # getting the back and front on right
-                while fsensor = 0: # getting front, and front and back on right
+        if Banalog >= 130: # getting backR
+            if Fanalog >= 130: # ... and frontR
+                if fsensor = 0: # ... and front
                     if Lanalog <= 130: # but not left, turn left
-                        RPL.servoWrite(motorL,lslow)#TURNTURNTURNTURNTURNTURNTURNTURN
-                        RPL.servoWrite(motorR,lslow)
-                    else: # front, left, and right, reverse
-                        break
+                        now = time.time()
+                        future = now + 1
+                        while time.time() < future:
+                            RPL.servoWrite(motorL,lslow)#TURNTURNTURNTURNTURNTURNTURNTURN
+                            RPL.servoWrite(motorR,lslow)
+                            now = time.time()
+                    else: # ... and left
+                        break # reverse! reverse!
+
 
                 # centering if whole robot too close or far away
-                if Fanalog <= closedist and Banalog <= closedist:
+                elif Fanalog <= closedist and Banalog <= closedist:
                     RPL.servoWrite(motorL,lslow)
                     RPL.servoWrite(motorR,rgo)
 
@@ -106,7 +111,7 @@ while True: # big loop
                 RPL.servoWrite(motorR,lslow)
             forward()
 
-
+    #####################################################
     while True: # backwards: essentially same as above, difference is orientation
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
