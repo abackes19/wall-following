@@ -61,21 +61,21 @@ while True:
 
         # calibrating the distance off the wall:
         if Fanalog <= closedist and Banalog <= closedist:
-            RPL.servoWrite(motorL,lslow)
-            RPL.servoWrite(motorR,rgo)
-
-        if Fanalog >= fardist and Banalog >= fardist:
             RPL.servoWrite(motorL,lgo)
             RPL.servoWrite(motorR,rslow)
+
+        if Fanalog >= fardist and Banalog >= fardist:
+            RPL.servoWrite(motorL,lslow)
+            RPL.servoWrite(motorR,rgo)
 
         #if the robot is parallel to the wall it will move forward
         if straight > -2 and straight < 2:
             forward()
         #if the robot is angled away the wall- turn towards
         if straight < -2:
-            RPL.servoWrite(motorL,lslow)
-            RPL.servoWrite(motorR,rgo)
+            RPL.servoWrite(motorL,rslow)
+            RPL.servoWrite(motorR,lgo)
         #if the robot is angeled towards the wall- turn away
         if straight > 2:
-            RPL.servoWrite(motorL,lgo)
-            RPL.servoWrite(motorR,rslow)
+            RPL.servoWrite(motorL,rgo)
+            RPL.servoWrite(motorR,lslow)
