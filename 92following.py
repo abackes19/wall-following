@@ -1,7 +1,15 @@
 import setup
 import RoboPiLib as RPL
+import time
 # this will be the updated one
 # adding avoidance of problem of only br reading
+
+# MAKE IT DO 90 DEGREE TURNS, NOT UNTIL IT DOESN'T SENSE ANYMORE
+# PROBLEM WITH THIS: WILL NEED TO IMMEDIATELY GO STRAIGHT SO DON'T GET CAUGHT
+# ... WITH NO R SIDE SENSORS WHEN TURNING RIGHT
+
+now = time.time()
+future = now
 
 motorL = 1
 motorR = 2
@@ -61,7 +69,7 @@ while True: # big loop
 
         if Banalog >= 130:
             if Fanalog >= 130: # getting the back and front on right
-                while fsensor = 0: # getting front and front and back on right
+                while fsensor = 0: # getting front, and front and back on right
                     if Lanalog <= 130: # but not left, turn left
                         RPL.servoWrite(motorL,lslow)#TURNTURNTURNTURNTURNTURNTURNTURN
                         RPL.servoWrite(motorR,lslow)
@@ -96,6 +104,7 @@ while True: # big loop
             while fsensor = 0:#TURNTURNTURNTURNTURNTURNTURNTURN
                 RPL.servoWrite(motorL,lslow)
                 RPL.servoWrite(motorR,lslow)
+            forward()
 
 
     while True: # backwards: essentially same as above, difference is orientation
