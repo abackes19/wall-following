@@ -25,10 +25,10 @@ lana = 1
 fdig = 20
 bdig = 18
 
-lgo = 1700
-rgo = 1300
-rslow = 1400
-lslow = 1600
+lgo = 1800
+rgo = 1200
+rslow = 1300
+lslow = 1700
 
 ninety = 1
 backup = .5
