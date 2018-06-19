@@ -1,8 +1,6 @@
 import RoboPiLib as RPL
 RPL.RoboPiInit("/dev/ttyAMA0",115200)
 import time
-# this will be the updated one
-# adding avoidance of problem of only br reading
 
 # MAKE IT DO 90 DEGREE TURNS, NOT UNTIL IT DOESN'T SENSE ANYMORE
 # PROBLEM WITH THIS: WILL NEED TO IMMEDIATELY GO STRAIGHT SO DON'T GET CAUGHT
@@ -13,28 +11,30 @@ future = now
 
 x = "yes"
 
+# motors
 motorL = 0
 motorR = 1
 
+# analog sensors
 fana = 6
 bana = 5
 lana = 1
 
-# all digital sensor numbers are currently just made up
-
+# digital sensors
 fdig = 20
 bdig = 18
 
+# speeds
 go = 1900
 slowgo = 1800
 back = 1100
 slowback = 1200
 
-
+# turning times
 ninety = 1
 backup = .5
 
-
+# distances
 fardist = 200
 closedist = 250
 
@@ -69,7 +69,7 @@ while x != "no": # big loop
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
-        forward() # reset motors to straight through each loop
+        straight = Banalog - Fanalog
 
         if Banalog >= 130: # getting backR
             if Fanalog >= 130: # ... and frontR
@@ -101,15 +101,12 @@ while x != "no": # big loop
                     RPL.servoWrite(motorR,slowgo)
 
                 else: # the robot is in a good place
-                #if the robot is parallel to the wall it will move forward
-                    if straight > -2 and straight < 2:
+                    if straight > -2 and straight < 2: # parallel, go
                         forward()
-                    #if the robot is angled away the wall- turn towards
-                    elif straight < -2:
+                    elif straight < -2: # angled away, turn towards
                         RPL.servoWrite(motorL,go)
                         RPL.servoWrite(motorR,slowgo)
-                    #if the robot is angeled towards the wall- turn away
-                    else:
+                    else: # angled towards, turn away
                         RPL.servoWrite(motorL,slowgo)
                         RPL.servoWrite(motorR,go)
             else: # no front or front right, but back right
@@ -136,7 +133,7 @@ while x != "no": # big loop
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
-        reverse() # reset motors to straight through each loop
+        straight = Fanalog - Banalog
 
         # Turns:
 
@@ -169,15 +166,12 @@ while x != "no": # big loop
                     RPL.servoWrite(motorR,slowback)
 
                 else:
-                #if the robot is parallel to the wall it will move forward
-                    if straight > -2 and straight < 2:
+                    if straight > -2 and straight < 2: # parallel, go
                         reverse()
-                    #if the robot is angled away the wall- turn towards
-                    elif straight < -2:
+                    elif straight < -2: # angled away, turn towards
                         RPL.servoWrite(motorL,back)
                         RPL.servoWrite(motorR,slowback)
-                    #if the robot is angeled towards the wall- turn away
-                    else:
+                    else: # angled towards, turn away
                         RPL.servoWrite(motorL,slowback)
                         RPL.servoWrite(motorR,back)
             else:
