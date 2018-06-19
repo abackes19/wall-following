@@ -14,14 +14,14 @@ future = now
 motorL = 1
 motorR = 2
 
-fana = 0
-bana = 3
+fana = 6
+bana = 5
 lana = 1
 
 # all digital sensor numbers are currently just made up
 
-fdig = 1
-bdig = 2
+fdig = 20
+bdig = 18
 
 lgo = 1800
 rgo = 1200
@@ -29,8 +29,8 @@ rslow = 1350
 lslow = 1650
 
 
-fardist = 370
-closedist = 320
+fardist = 200
+closedist = 250
 
 Fanalog = RPL.analogRead(fana)
 Banalog = RPL.analogRead(bana)
@@ -72,6 +72,11 @@ while True: # big loop
                 if fsensor = 0: # ... and front
                     if Lanalog <= 130: # but not left, turn left
                         now = time.time()
+                        future = now + .5
+                        while time.time() < future:
+                            RPL.servoWrite(motorL,rslow) #back up then turn
+                            RPL.servoWrite(motorR,lslow)
+                        now = time.time()
                         future = now + 1
                         while time.time() < future:
                             RPL.servoWrite(motorL,lslow)#TURNTURNTURNTURNTURNTURNTURNTURN
@@ -108,6 +113,11 @@ while True: # big loop
         else: # back right gets nothing, turn right
             if fsensor = 0:#TURNTURNTURNTURNTURNTURNTURNTURN
                 now = time.time()
+                future = now + .5
+                while time.time() < future:
+                    RPL.servoWrite(motorL,rslow) #back up then turn
+                    RPL.servoWrite(motorR,lslow)
+                now = time.time()
                 future = now + 1
                 while time.time() < future:
                     RPL.servoWrite(motorL,lslow)
@@ -129,6 +139,11 @@ while True: # big loop
             if Banalog >= 130:
                 if bsensor = 0:
                     if Lanalog <= 130:
+                        now = time.time()
+                        future = now + .5
+                        while time.time() < future:
+                            RPL.servoWrite(motorL,lslow) #back up then turn
+                            RPL.servoWrite(motorR,rslow)
                         now = time.time()
                         future = now + 1
                         while time.time() < future:
@@ -163,6 +178,11 @@ while True: # big loop
                 forward()
         else:
             if fsensor = 0: #TURNTURNTURNTURNTURNTURNTURNTURN
+                now = time.time()
+                future = now + .5
+                while time.time() < future:
+                    RPL.servoWrite(motorL,lslow) #back up then turn
+                    RPL.servoWrite(motorR,rslow)
                 now = time.time()
                 future = now + 1
                 while time.time() < future:
