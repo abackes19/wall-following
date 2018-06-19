@@ -11,8 +11,10 @@ import time
 now = time.time()
 future = now
 
-motorL = 1
-motorR = 2
+x = "yes"
+
+motorL = 0
+motorR = 1
 
 fana = 6
 bana = 5
@@ -23,10 +25,10 @@ lana = 1
 fdig = 20
 bdig = 18
 
-lgo = 1800
-rgo = 1200
-rslow = 1350
-lslow = 1650
+lgo = 1700
+rgo = 1300
+rslow = 1400
+lslow = 1600
 
 
 fardist = 200
@@ -55,8 +57,7 @@ def stop():
 
 
 
-while True: # big loop
-
+while x != "no": # big loop
 
     while True: # forward
         Fanalog = RPL.analogRead(fana)
@@ -64,8 +65,7 @@ while True: # big loop
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
-        RPL.servoWrite(motorR, rgo) # reset motors to straight through each loop
-        RPL.servoWrite(motorL, lgo)
+        forward() # reset motors to straight through each loop
 
         if Banalog >= 130: # getting backR
             if Fanalog >= 130: # ... and frontR
@@ -83,6 +83,7 @@ while True: # big loop
                             RPL.servoWrite(motorR,lslow)
                         forward()
                     else: # ... and left
+                        stop()
                         break # reverse! reverse!
 
 
@@ -151,6 +152,7 @@ while True: # big loop
                             RPL.servoWrite(motorR,lslow)
                         forward()
                     else:
+                        stop()
                         break
 
 
@@ -175,7 +177,8 @@ while True: # big loop
                         RPL.servoWrite(motorL,rgo)
                         RPL.servoWrite(motorR,lslow)
             else:
-                forward()
+                reverse()
+
         else:
             if fsensor = 0: #TURNTURNTURNTURNTURNTURNTURNTURN
                 now = time.time()
@@ -189,3 +192,4 @@ while True: # big loop
                     RPL.servoWrite(motorL,rslow)
                     RPL.servoWrite(motorR,rslow)
             reverse()
+    x = userinput("continue? >")
