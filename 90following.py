@@ -1,144 +1,195 @@
-import setup
+# replaced moving treads with printing what it's doing, don't want it to actually move
+
 import RoboPiLib as RPL
-#change it to 3 and 8 for sensors
+RPL.RoboPiInit("/dev/ttyAMA0",115200)
+import time
+import post_to_web as PTW
 
-# attempt to rearrange if statements
-# pre- these changes is 90following.py
+now = time.time()
+future = now
 
-motorL = 1
-motorR = 2
+x = "yes"
 
-fana = 0
-bana = 3
+# motors
+motorL = 0
+motorR = 1
+
+# analog sensors
+fana = 3
+bana = 4
 lana = 1
 
-# all digital sensor numbers are currently just made up
+# digital sensors
+fdig = 20
+bdig = 18
 
-fdig = 1
-bdig = 2
+# speeds
+go = 1800
+slowgo = 1780
+back = 1200
+slowback = 1220
 
-lgo = 1800
-rgo = 1200
-rslow = 1350
-lslow = 1650
+# turning times
+ninety = 2
+backup = .7
 
 
-fardist = 370
-closedist = 320
+# readings
+#Fanalog = RPL.analogRead(fana)
+#Banalog = RPL.analogRead(bana)
+#Lanalog = RPL.analogRead(lana)
+#fsensor = RPL.digitalRead(fdig)
+#bsensor = RPL.digitalRead(bdig)
 
-Fanalog = RPL.analogRead(fana)
-Banalog = RPL.analogRead(bana)
-Lanalog = RPL.analogRead(lana)
-fsensor = RPL.digitalRead(fdig)
-bsensor = RPL.digitalRead(bdig)
+# distances
+#straight = Fanalog - Banalog
+tolerance = 50
+fardist = 200
+closedist = 500
+gone = 50
 
-straight = Fanalog - Banalog
 
 
 def reverse():
-    RPL.servoWrite(motorL,rgo)
-    RPL.servoWrite(motorR,lgo)
+    RPL.servoWrite(motorL,back)
+    RPL.servoWrite(motorR,back)
 
 def forward():
-    RPL.servoWrite(motorL,lgo)
-    RPL.servoWrite(motorR,rgo)
+    RPL.servoWrite(motorL,go)
+    RPL.servoWrite(motorR,go)
 
 def stop():
-    RPL.servoWrite(motorL, 0)
-    RPL.servoWrite(motorR, 0)
+    RPL.servoWrite(motorL, 1500)
+    RPL.servoWrite(motorR, 1500)
 
 
 
-while True: # big loop
+while x != "no": # big loop
 
-    while True: # forward
+    while x = "no": # forward
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
+        straight = Banalog - Fanalog
+        PTW.state['Fanalog'] = Fanalog
+        PTW.state['Banalog'] = Banalog
+        PTW.state['Lanalog'] = Lanalog
+        PTW.state['fsensor'] = fsensor
+        PTW.state['bsensor'] = bsensor
+        PTW.state['straight'] = straight
+        print "go"
 
 
-        if Banalog >= 130:
-            if Fanalog >= 130: # getting the back and front on right
-                while fsensor = 0: # getting front and front and back on right
-                    if Lanalog <= 130: # but not left, turn left
-                        RPL.servoWrite(motorL,lslow)
-                        RPL.servoWrite(motorR,lslow)
-                    else: # front, left, and right, reverse
-                        break
+
+        if Banalog > gone: # getting backR
+            if Fanalog > gone: # ... and frontR
+                if fsensor == 0: # ... and front
+                    if Lanalog <= gone: # but not left, turn left
+                        print "Backup"
+                        time.sleep(backup)
+                        print "Turn left"
+                        time.sleep(ninety)
+                        print "onward!"
+                    else: # ... and left
+                        print "STOP STOP STOP"
+                        # break # reverse! reverse!
+
+
+
 
                 # centering if whole robot too close or far away
-                if Fanalog <= closedist and Banalog <= closedist:
-                    RPL.servoWrite(motorL,lslow)
-                    RPL.servoWrite(motorR,rgo)
+                elif Fanalog >= closedist or Banalog >= closedist:
+                    print "Too close"
 
-                elif Fanalog >= fardist and Banalog >= fardist:
-                    RPL.servoWrite(motorL,lgo)
-                    RPL.servoWrite(motorR,rslow)
+
+                elif Fanalog <= fardist or Banalog <= fardist:
+                    print "Too far"
+
 
                 else: # the robot is in a good place
-                #if the robot is parallel to the wall it will move forward
-                    if straight > -2 and straight < 2:
-                        forward()
-                    #if the robot is angled away the wall- turn towards
-                    elif straight < -2:
-                        RPL.servoWrite(motorL,lslow)
-                        RPL.servoWrite(motorR,rgo)
-                    #if the robot is angeled towards the wall- turn away
-                    else:
-                        RPL.servoWrite(motorL,lgo)
-                        RPL.servoWrite(motorR,rslow)
+                    if straight > -tolerance and straight < tolerance: # parallel, go
+                        print "good, go"
+                    elif straight < -tolerance: # angled away, turn towards
+                        print "angled away, turn towards"
+                    else: # angled towards, turn away
+                        print "Angled towards, turn away"
             else: # no front or front right, but back right
-                forward() # need to continue so doesn't turn too sharp,
+                print "go" # need to continue so doesn't turn too sharp, will turn when get front
 
         else: # back right gets nothing, turn right
-            while fsensor = 0:
-                RPL.servoWrite(motorL,lslow)
-                RPL.servoWrite(motorR,lslow)
+            if fsensor == 0:#TURN RIGHT TURN RIGHT TURN RIGHT
+                print "backup"
+                time.sleep(backup)
+                print "turn right"
+                time.sleep(ninety)
+            print "go"
+        PTW.post()
 
-
-    while True: # backwards
+    #####################################################
+    while x = "yes": # backwards: essentially same as above, difference is orientation
         Fanalog = RPL.analogRead(fana)
         Banalog = RPL.analogRead(bana)
         Lanalog = RPL.analogRead(lana)
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
+        straight = Fanalog - Banalog
+        PTW.state['Fanalog'] = Fanalog
+        PTW.state['Banalog'] = Banalog
+        PTW.state['Lanalog'] = Lanalog
+        PTW.state['fsensor'] = fsensor
+        PTW.state['bsensor'] = bsensor
+        PTW.state['straight'] = straight
+        reverse()
 
         # Turns:
 
-        if Fanalog >= 130:
-
-            while bsensor = 0:
-                if Lanalog <= 130:
-                    RPL.servoWrite(motorL,lslow)
-                    RPL.servoWrite(motorR,lslow)
-                else:
-                    break
-
-
-            else:
-                if Fanalog <= closedist and Banalog <= closedist:
-                    RPL.servoWrite(motorL,lgo)
-                    RPL.servoWrite(motorR,rslow)
-
-                elif Fanalog >= fardist and Banalog >= fardist:
-                    RPL.servoWrite(motorL,lslow)
-                    RPL.servoWrite(motorR,rgo)
-
-                else:
-                #if the robot is parallel to the wall it will move forward
-                    if straight > -2 and straight < 2:
-                        reverse()
-                    #if the robot is angled away the wall- turn towards
-                    elif straight < -2:
-                        RPL.servoWrite(motorL,rslow)
-                        RPL.servoWrite(motorR,lgo)
-                    #if the robot is angeled towards the wall- turn away
+        if Fanalog >= 130: #fr
+            if Banalog >= 130: #br
+                if bsensor == 0: #back
+                    if Lanalog <= 130: # no left
+                        RPL.servoWrite(motorL,slowgo) #back up then turn
+                        RPL.servoWrite(motorR,slowgo)
+                        time.sleep(backup)
+                        RPL.servoWrite(motorL,slowgo)
+                        RPL.servoWrite(motorR,slowback)
+                        time.sleep(ninety)
+                        forward()
                     else:
-                        RPL.servoWrite(motorL,rgo)
-                        RPL.servoWrite(motorR,lslow)
+                        stop()
+                        break
+
+
+                elif Fanalog <= closedist and Banalog <= closedist: # too close, turn away
+                    RPL.servoWrite(motorL,slowback)
+                    RPL.servoWrite(motorR,back)
+
+                elif Fanalog >= fardist and Banalog >= fardist: # too far, turn towards
+                    RPL.servoWrite(motorL,back)
+                    RPL.servoWrite(motorR,slowback)
+
+                else:
+                    if straight > -20 and straight < 20: # parallel, go
+                        reverse()
+                    elif straight < -20: # angled away, turn towards
+                        RPL.servoWrite(motorL,back)
+                        RPL.servoWrite(motorR,slowback)
+                    else: # angled towards, turn away
+                        RPL.servoWrite(motorL,slowback)
+                        RPL.servoWrite(motorR,back)
+            else:
+                reverse()
+
         else:
-            while fsensor = 0:
-                RPL.servoWrite(motorL,rslow)
-                RPL.servoWrite(motorR,rslow)
+            if fsensor == 0: #TURNTURNTURNTURNTURNTURNTURNTURN
+                RPL.servoWrite(motorL,slowgo) #back up then turn
+                RPL.servoWrite(motorR,slowgo)
+                time.sleep(backup)
+                RPL.servoWrite(motorL,slowback)
+                RPL.servoWrite(motorR,slowgo)
+                time.sleep(ninety)
+            reverse()
+        PTW.post()
+
+    x = userinput("continue? >")
