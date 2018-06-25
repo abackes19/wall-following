@@ -1,10 +1,9 @@
+
+
 import RoboPiLib as RPL
 RPL.RoboPiInit("/dev/ttyAMA0",115200)
 import time
-
-# MAKE IT DO 90 DEGREE TURNS, NOT UNTIL IT DOESN'T SENSE ANYMORE
-# PROBLEM WITH THIS: WILL NEED TO IMMEDIATELY GO STRAIGHT SO DON'T GET CAUGHT
-# ... WITH NO R SIDE SENSORS WHEN TURNING RIGHT
+import post_to_web as PTW
 
 now = time.time()
 future = now
@@ -16,8 +15,8 @@ motorL = 0
 motorR = 1
 
 # analog sensors
-fana = 6
-bana = 5
+fana = 3
+bana = 4
 lana = 1
 
 # digital sensors
@@ -25,26 +24,37 @@ fdig = 20
 bdig = 18
 
 # speeds
-go = 1900
-slowgo = 1800
-back = 1100
-slowback = 1200
+rgo = 2000
+lgo = 1750
+lslowgo = 1600
+rslowgo = 1700
+lgo = 1700
+back = 1200
+slowback = 1300
+
+
+#250 = l max
+#r = 500
+
 
 # turning times
-ninety = 1
-backup = .5
+ninety = 1.5
+backup = .7
+
+# readings
+#Fanalog = RPL.analogRead(fana)
+#Banalog = RPL.analogRead(bana)
+#Lanalog = RPL.analogRead(lana)
+#fsensor = RPL.digitalRead(fdig)
+#bsensor = RPL.digitalRead(bdig)
 
 # distances
+#straight = Fanalog - Banalog
+tolerance = 50
 fardist = 200
-closedist = 250
+closedist = 500
+gone = 50
 
-Fanalog = RPL.analogRead(fana)
-Banalog = RPL.analogRead(bana)
-Lanalog = RPL.analogRead(lana)
-fsensor = RPL.digitalRead(fdig)
-bsensor = RPL.digitalRead(bdig)
-
-straight = Fanalog - Banalog
 
 
 def reverse():
@@ -52,8 +62,8 @@ def reverse():
     RPL.servoWrite(motorR,back)
 
 def forward():
-    RPL.servoWrite(motorL,go)
-    RPL.servoWrite(motorR,go)
+    RPL.servoWrite(motorL,lgo)
+    RPL.servoWrite(motorR,rgo)
 
 def stop():
     RPL.servoWrite(motorL, 1500)
@@ -70,21 +80,26 @@ while x != "no": # big loop
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
         straight = Banalog - Fanalog
+        PTW.state['Fanalog'] = Fanalog
+        PTW.state['Banalog'] = Banalog
+        PTW.state['Lanalog'] = Lanalog
+        PTW.state['fsensor'] = fsensor
+        PTW.state['bsensor'] = bsensor
+        PTW.state['straight'] = straight
+        forward()
 
-        if Banalog >= 130: # getting backR
-            if Fanalog >= 130: # ... and frontR
+
+
+        if Banalog > gone: # getting backR
+            if Fanalog > gone: # ... and frontR
                 if fsensor == 0: # ... and front
-                    if Lanalog <= 130: # but not left, turn left
-                        now = time.time()
-                        future = now + backup
-                        while time.time() < future:
-                            RPL.servoWrite(motorL,slowback) #back up then turn
-                            RPL.servoWrite(motorR,slowback)
-                        now = time.time()
-                        future = now + ninety
-                        while time.time() < future:
-                            RPL.servoWrite(motorL,slowback)#TURN LEFT TURN LEFT
-                            RPL.servoWrite(motorR,slowgo)
+                    if Lanalog <= gone: # but not left, turn left
+                        RPL.servoWrite(motorL,slowback) #back up then turn
+                        RPL.servoWrite(motorR,slowback)
+                        time.sleep(backup)
+                        RPL.servoWrite(motorL,slowback)#TURN LEFT TURN LEFT
+                        RPL.servoWrite(motorR,rslowgo)
+                        time.sleep(ninety)
                         forward()
                     else: # ... and left
                         stop()
@@ -92,39 +107,36 @@ while x != "no": # big loop
 
 
                 # centering if whole robot too close or far away
-                elif Fanalog <= closedist and Banalog <= closedist:
-                    RPL.servoWrite(motorL,slowgo)
-                    RPL.servoWrite(motorR,go)
+                elif Fanalog >= closedist or Banalog >= closedist:
+                    RPL.servoWrite(motorL,lslowgo)
+                    RPL.servoWrite(motorR,rgo)
 
-                elif Fanalog >= fardist and Banalog >= fardist:
-                    RPL.servoWrite(motorL,go)
-                    RPL.servoWrite(motorR,slowgo)
+                elif Fanalog >= fardist or Banalog >= fardist:
+                    RPL.servoWrite(motorL,lgo)
+                    RPL.servoWrite(motorR,rslowgo)
 
                 else: # the robot is in a good place
-                    if straight > -2 and straight < 2: # parallel, go
+                    if straight > -tolerance and straight < tolerance: # parallel, go
                         forward()
-                    elif straight < -2: # angled away, turn towards
-                        RPL.servoWrite(motorL,go)
-                        RPL.servoWrite(motorR,slowgo)
+                    elif straight < -tolerance: # angled away, turn towards
+                        RPL.servoWrite(motorL,lgo)
+                        RPL.servoWrite(motorR,rslowgo)
                     else: # angled towards, turn away
-                        RPL.servoWrite(motorL,slowgo)
-                        RPL.servoWrite(motorR,go)
+                        RPL.servoWrite(motorL,lslowgo)
+                        RPL.servoWrite(motorR,rgo)
             else: # no front or front right, but back right
                 forward() # need to continue so doesn't turn too sharp, will turn when get front
 
         else: # back right gets nothing, turn right
             if fsensor == 0:#TURN RIGHT TURN RIGHT TURN RIGHT
-                now = time.time()
-                future = now + backup
-                while time.time() < future:
-                    RPL.servoWrite(motorL,slowback) #back up then turn
-                    RPL.servoWrite(motorR,slowback)
-                now = time.time()
-                future = now + ninety
-                while time.time() < future:
-                    RPL.servoWrite(motorL,slowgo)
-                    RPL.servoWrite(motorR,slowback)
+                RPL.servoWrite(motorL,slowback) #back up then turn
+                RPL.servoWrite(motorR,slowback)
+                time.sleep(backup)
+                RPL.servoWrite(motorL,lslowgo)
+                RPL.servoWrite(motorR,slowback)
+                time.sleep(ninety)
             forward()
+        PTW.post()
 
     #####################################################
     while True: # backwards: essentially same as above, difference is orientation
@@ -134,23 +146,26 @@ while x != "no": # big loop
         fsensor = RPL.digitalRead(fdig)
         bsensor = RPL.digitalRead(bdig)
         straight = Fanalog - Banalog
+        PTW.state['Fanalog'] = Fanalog
+        PTW.state['Banalog'] = Banalog
+        PTW.state['Lanalog'] = Lanalog
+        PTW.state['fsensor'] = fsensor
+        PTW.state['bsensor'] = bsensor
+        PTW.state['straight'] = straight
+        reverse()
 
         # Turns:
 
-        if Fanalog >= 130: #fr
-            if Banalog >= 130: #br
+        if Fanalog >= gone: #fr
+            if Banalog >= gone: #br
                 if bsensor == 0: #back
-                    if Lanalog <= 130: # no left
-                        now = time.time()
-                        future = now + backup
-                        while time.time() < future:
-                            RPL.servoWrite(motorL,slowgo) #back up then turn
-                            RPL.servoWrite(motorR,slowgo)
-                        now = time.time()
-                        future = now + ninety
-                        while time.time() < future:
-                            RPL.servoWrite(motorL,slowgo)
-                            RPL.servoWrite(motorR,slowback)
+                    if Lanalog <= gone: # no left
+                        RPL.servoWrite(motorL,lslowgo) #back up then turn
+                        RPL.servoWrite(motorR,rslowgo)
+                        time.sleep(backup)
+                        RPL.servoWrite(motorL,lslowgo)
+                        RPL.servoWrite(motorR,slowback)
+                        time.sleep(ninety)
                         forward()
                     else:
                         stop()
@@ -166,9 +181,9 @@ while x != "no": # big loop
                     RPL.servoWrite(motorR,slowback)
 
                 else:
-                    if straight > -2 and straight < 2: # parallel, go
+                    if straight > -tolerance and straight < tolerance: # parallel, go
                         reverse()
-                    elif straight < -2: # angled away, turn towards
+                    elif straight < -tolerance: # angled away, turn towards
                         RPL.servoWrite(motorL,back)
                         RPL.servoWrite(motorR,slowback)
                     else: # angled towards, turn away
@@ -179,16 +194,13 @@ while x != "no": # big loop
 
         else:
             if fsensor == 0: #TURNTURNTURNTURNTURNTURNTURNTURN
-                now = time.time()
-                future = now + backup
-                while time.time() < future:
-                    RPL.servoWrite(motorL,slowgo) #back up then turn
-                    RPL.servoWrite(motorR,slowgo)
-                now = time.time()
-                future = now + ninety
-                while time.time() < future:
-                    RPL.servoWrite(motorL,slowback)
-                    RPL.servoWrite(motorR,slowgo)
+                RPL.servoWrite(motorL,lslowgo) #back up then turn
+                RPL.servoWrite(motorR,rslowgo)
+                time.sleep(backup)
+                RPL.servoWrite(motorL,lslowback)
+                RPL.servoWrite(motorR,rslowgo)
+                time.sleep(ninety)
             reverse()
+        PTW.post()
 
-    x = userinput("continue? >")
+    x = input("continue? >")
